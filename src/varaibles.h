@@ -53,7 +53,7 @@ extern uint16_t lastTransmitterSendTime;
 extern const char MENU_POINTER;
 
 
-extern uint16_t last_message_milis;
+extern unsigned long last_message_milis;
 extern bool IS_STOPPED;
 //sevo items
 #define RELEASE_DEGREE 80

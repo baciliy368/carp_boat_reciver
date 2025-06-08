@@ -9,7 +9,7 @@ float getBatteryValue()
 MessageData getBoatInfoMessageData()
 {
     MessageData messageData;
-
+    messageData.operation_type = 5;
     messageData.battery_voltage = getBatteryValue();
     messageData.wifi = isWiFiEnabled();
 

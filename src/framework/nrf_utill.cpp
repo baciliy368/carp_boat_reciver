@@ -1,6 +1,5 @@
 #include "nrf_utill.h"
 
-
 RF24 radio(NRF_CE_PIN, NRF_CSN_PIN);
 uint8_t address[][6] = {"1Node", "2Node"};
 bool role = false;
@@ -73,27 +72,23 @@ void prepareRfn()
 
 void waitMessageWithOperationType()
 {
-  if(millis() - last_message_milis > 200 & IS_STOPPED == false) {
+  if ((millis() - last_message_milis > 250) && !IS_STOPPED)
+  {
     stop();
     IS_STOPPED = true;
   }
   uint8_t pipe;
+  
   if (radio.available(&pipe))
   {
     MessageData messageData;                       // is there a payload? get the pipe number that recieved it
     uint8_t bytes = radio.getPayloadSize();        // get the size of the payload
     radio.read(&messageData, sizeof(MessageData)); // fetch payload from FIFO
-    Serial.println(messageData.operation_type);
-
     switch (messageData.operation_type)
     {
     case 15:
-    Serial.print("STATE BEFORE: ");
-    Serial.print(IS_STOPPED);
-    Serial.print(" millis BEFORE: ");
-    Serial.println(last_message_milis);
-      
       engineInterface(messageData.joystickX, messageData.joystickY);
+      IS_STOPPED = false;
       break;
     case 16:
       stop();
@@ -123,6 +118,7 @@ void waitMessageWithOperationType()
     default:
       break;
     }
+    last_message_milis = millis();
   }
 }
 
@@ -136,7 +132,7 @@ void sendDataToController()
   else
   {
     radio.startListening();
-    delay(300);
+    delay(500);
     boatInfoTransmitter = false;
   }
 }

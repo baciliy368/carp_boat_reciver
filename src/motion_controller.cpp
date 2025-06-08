@@ -9,23 +9,6 @@ int pwmRate(int pwm)
     return 100;
 
   return map(pwm, 20, 100, 80, 255);
-
-  // // 255 - max
-  // float pwm_percent = 0.0;
-  // int minimal_effective_pwm = 100;
-  // if (pwm == 0)
-  // {
-  //   return 255;
-  // }
-  // if (pwm / 4095.0 > 0.5)
-  // {
-  //   pwm_percent = (pwm / 4095.0 - 0.5) * 2;
-  // }
-  // else
-  // {
-  //   pwm_percent = (0.5 - (pwm / 4095.0)) * 2;
-  // }
-  // return minimal_effective_pwm + (255 - minimal_effective_pwm) * pwm_percent;
 }
 
 void prepareDriver()
@@ -36,8 +19,6 @@ void prepareDriver()
   pinMode(in1_right, OUTPUT);
   pinMode(in2_left, OUTPUT);
   pinMode(in2_right, OUTPUT);
-  // ledcAttachChannel(enA, freq, resolution, pwmChannel);
-  // ledcAttachChannel(enB, freq, resolution, pwmChannel);
   ledcSetup(pwmChannel, freq, resolution);
   ledcAttachPin(enA, pwmChannel);
 
@@ -54,8 +35,8 @@ void prepareDriver()
 
 void fristForward(int speed)
 {
-  Serial.print("fristForward ");
-  Serial.println(speed);
+  bridge.print("fristForward ");
+  bridge.println(speed);
   analogWrite(enA, speed);
   digitalWrite(in1_left, HIGH);
   digitalWrite(in1_right, LOW);
@@ -63,8 +44,8 @@ void fristForward(int speed)
 
 void secondForward(int speed)
 {
-  Serial.print("secondForward ");
-  Serial.println(speed);
+  bridge.print("secondForward ");
+  bridge.println(speed);
   analogWrite(enB, speed);
   digitalWrite(in2_left, LOW);
   digitalWrite(in2_right, HIGH);
@@ -72,8 +53,8 @@ void secondForward(int speed)
 
 void firstBackward(int speed)
 {
-  Serial.print("firstBackward ");
-  Serial.println(speed);
+  bridge.print("firstBackward ");
+  bridge.println(speed);
   analogWrite(enA, speed);
   digitalWrite(in1_left, LOW);
   digitalWrite(in1_right, HIGH);
@@ -82,8 +63,8 @@ void firstBackward(int speed)
 
 void secondBackward(int speed)
 {
-  Serial.print("secondBackward ");
-  Serial.println(speed);
+  bridge.print("secondBackward ");
+  bridge.println(speed);
   analogWrite(enB, speed);
   digitalWrite(in2_left, HIGH);
   digitalWrite(in2_right, LOW);
@@ -115,7 +96,7 @@ void backwardRight(int x, int y)
 
 void stop()
 {
-  Serial.println("stop");
+  bridge.println("stop");
   digitalWrite(in1_left, LOW);
   digitalWrite(in1_right, LOW);
 
@@ -149,41 +130,59 @@ void right(int x)
 
 void engineInterface(int8_t x, int8_t y)
 {
-  Serial.print("x: ");
-  Serial.print(x);
-  Serial.print("y: ");
-  Serial.println(y);
-  if (y > 0)
-  { // если движение вперед
-    // if(x>2200) {
-    //   forwardRight(x, y); //если стик вправо
-    // } else if(x<1700) {
-    //   forwardLeft(x,  y); //если стик влево
-    // } else {
-    forward(y); // если стик прямо
-    // }
+  bridge.print("x: ");
+  bridge.print(x);
+  bridge.print("y: ");
+  bridge.println(y);
+  // стик влево
+  if (x > 20)
+  {
+    // проверка вертикальной оси
+    if (y >= 20)
+    {
+      // если вертикальная ось вперед
+      forwardLeft(x, y);
+    }
+    else if (y <= -20)
+    {
+      // если вертикальная ось назад
+      backwardLeft(x, y);
+    }
+    else
+    {
+      left(x);
+    }
   }
-  else if (y < 0)
-  { // если движение назад
-    // if(x>2200) {
-    //   backwardRight(x, y); //если стик вправо
-    // } else if(x<1700) {
-    //   backwardLeft(x, y); //если стик влево
-    // } else {
-    backward(y); // если стик прямо
-    // }
+  // стик вправо
+  else if (x < -20)
+  {
+    // проверка вертикальной оси
+    if (y >= 20)
+    {
+      // если вертикальная ось вперед
+      forwardRight(x, y);
+    }
+    else if (y <= -20)
+    {
+      // если вертикальная ось назад
+      backwardRight(x, y);
+    }
+    else
+    {
+      right(x);
+    }
   }
   else
   {
-    if (x > 0)
+    // если стик прямо
+    if (y > 0)
     {
-      right(x); // если стик вправо
+      forward(y);
     }
-    else if (x < 0)
+    // если стик прямо
+    else if (y < 0)
     {
-      left(x); // если стик влево
+      backward(y);
     }
   }
-  IS_STOPPED = false;
-  last_message_milis = millis();
 }

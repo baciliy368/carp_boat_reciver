@@ -5,7 +5,8 @@
 #include <framework/gps.h>
 #include <servo_controller.h>
 
-void setup() {
+void setup()
+{
   Serial.begin(115200);
   prepareServos();
   prepareRfnListener();
@@ -15,14 +16,16 @@ void setup() {
   otaLogic();
 }
 
-void loop() {
-  if(!boatInfoTransmitter) {
+void loop()
+{
+  if (!boatInfoTransmitter)
+  {
     waitMessageWithOperationType();
-  } else {
+  }
+  else
+  {
     sendDataToController();
   }
-  if (millis() - lastTransmitterSendTime >= OTA_UPDATE_INTERVAL && WiFi.status() == WL_CONNECTED)
-  {
-    ArduinoOTA.handle();
-  }
+  ArduinoOTA.handle();
+  bridge.handle();
 }
